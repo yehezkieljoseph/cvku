@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preview CV – CVku</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal-50: #E1F5EE;
+      --teal-100: #9FE1CB;
+      --teal-500: #1D9E75;
+      --teal-700: #0F6E56;
+      --teal-900: #04342C;
+      --gray-50: #F8F8F6;
+      --gray-100: #F1EFE8;
+      --gray-300: #D3D1C7;
+      --gray-500: #888780;
+      --gray-800: #444441;
+      --gray-900: #2C2C2A;
+      --amber-400: #EF9F27;
+      --amber-50: #FAEEDA;
+      --white: #ffffff;
+      --red-500: #E24B4A;
+      --green-500: #639922;
+      --green-50: #EAF3DE;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(248,248,246,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gray-300);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-family:'Sora',sans-serif; font-weight:700; font-size:1.25rem; color:var(--teal-700); text-decoration:none; }
+    .logo span { color:var(--amber-400); }
+    .nav-actions { display:flex; gap:0.75rem; align-items:center; }
+    .btn-back {
+      background:var(--white); color:var(--gray-800);
+      border:1px solid var(--gray-300); border-radius:8px;
+      padding:0.45rem 1rem; font-size:0.875rem; font-weight:500;
+      cursor:pointer; text-decoration:none; display:inline-block;
+      transition: border-color 0.2s;
+    }
+    .btn-back:hover { border-color: var(--gray-500); }
+    .btn-download {
+      background:var(--teal-700); color:var(--white);
+      border:none; border-radius:8px;
+      padding:0.5rem 1.25rem; font-size:0.875rem; font-weight:600;
+      cursor:pointer; transition:background 0.2s;
+      font-family:'DM Sans',sans-serif;
+    }
+    .btn-download:hover { background:var(--teal-900); }
+
+    /* LAYOUT */
+    .layout {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 340px;
+      gap: 2rem; padding: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── CV PREVIEW ── */
+    .cv-wrapper {
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.06);
+    }
+
+    .cv-wrapper-header {
+      padding: 0.75rem 1.25rem;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-300);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .cv-wrapper-header span { font-size:0.78rem; color:var(--gray-500); }
+
+    .dot-red { width:10px; height:10px; border-radius:50%; background:#F09595; }
+    .dot-amber { width:10px; height:10px; border-radius:50%; background:#FAC775; }
+    .dot-green { width:10px; height:10px; border-radius:50%; background:#97C459; }
+
+    /* ── THE ACTUAL CV (ATS clean design) ── */
+    #cv-document {
+      padding: 48px 56px;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      line-height: 1.5;
+      min-height: 600px;
+    }
+
+    #cv-document .cv-name {
+      font-size: 22pt;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #0F6E56;
+      margin-bottom: 4px;
+      font-family: Arial, sans-serif;
+    }
+
+    #cv-document .cv-contact {
+      font-size: 9.5pt;
+      color: #555;
+      margin-bottom: 20px;
+      font-family: Arial, sans-serif;
+    }
+
+    #cv-document .cv-contact span { margin-right: 14px; }
+
+    #cv-document .cv-section {
+      margin-bottom: 18px;
+    }
+
+    #cv-document .cv-section-title {
+      font-size: 10pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #0F6E56;
+      border-bottom: 1.5px solid #0F6E56;
+      padding-bottom: 3px;
+      margin-bottom: 10px;
+      font-family: Arial, sans-serif;
+    }
+
+    #cv-document .cv-entry { margin-bottom: 12px; }
+
+    #cv-document .cv-entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    #cv-document .cv-entry-title {
+      font-weight: 700;
+      font-size: 11pt;
+      font-family: Arial, sans-serif;
+      color: #1a1a1a;
+    }
+
+    #cv-document .cv-entry-sub {
+      font-size: 10pt;
+      color: #555;
+      font-family: Arial, sans-serif;
+    }
+
+    #cv-document .cv-entry-date {
+      font-size: 9.5pt;
+      color: #555;
+      white-space: nowrap;
+      font-family: Arial, sans-serif;
+    }
+
+    #cv-document .cv-bullets {
+      margin-top: 5px;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    #cv-document .cv-bullets li {
+      font-size: 10.5pt;
+      padding-left: 1.1em;
+      position: relative;
+      margin-bottom: 3px;
+      font-family: Arial, sans-serif;
+      color: #222;
+    }
+
+    #cv-document .cv-bullets li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #0F6E56;
+    }
+
+    #cv-document .cv-skills-list {
+      font-size: 10.5pt;
+      font-family: Arial, sans-serif;
+      color: #222;
+      line-height: 1.7;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--gray-500);
+    }
+
+    .empty-state h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.1rem;
+      color: var(--gray-800);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state a {
+      display: inline-block; margin-top: 1rem;
+      background: var(--teal-700); color: var(--white);
+      padding: 0.65rem 1.5rem; border-radius: 8px;
+      text-decoration: none; font-weight: 500;
+    }
+
+    /* ── SCORE PANEL ── */
+    .score-panel { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 5rem; }
+
+    .score-card {
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+
+    .score-card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 0.9rem; font-weight: 600;
+      color: var(--gray-900); margin-bottom: 1.25rem;
+    }
+
+    /* SCORE CIRCLE */
+    .score-circle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .score-circle {
+      width: 80px; height: 80px; flex-shrink: 0;
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      border: 4px solid var(--teal-100);
+      position: relative;
+    }
+
+    .score-circle.high { border-color: var(--teal-500); }
+    .score-circle.mid { border-color: var(--amber-400); }
+    .score-circle.low { border-color: var(--red-500); }
+
+    .score-number {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--teal-700); line-height: 1;
+    }
+
+    .score-circle.mid .score-number { color: #854F0B; }
+    .score-circle.low .score-number { color: var(--red-500); }
+
+    .score-out { font-size: 0.7rem; color: var(--gray-500); }
+
+    .score-label-big {
+      font-family: 'Sora', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .score-desc { font-size: 0.8rem; color: var(--gray-500); margin-top: 0.2rem; }
+
+    /* SCORE BREAKDOWN */
+    .score-breakdown { display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .score-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 0.75rem;
+    }
+
+    .score-row-label { font-size: 0.78rem; color: var(--gray-800); flex: 1; }
+
+    .score-bar-bg {
+      flex: 2; height: 5px;
+      background: var(--gray-100);
+      border-radius: 100px; overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%; border-radius: 100px;
+      background: var(--teal-500);
+      transition: width 0.6s ease;
+    }
+
+    .score-row-val {
+      font-size: 0.78rem; font-weight: 600;
+      color: var(--teal-700); min-width: 28px;
+      text-align: right;
+    }
+
+    /* FEEDBACK */
+    .feedback-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .feedback-item {
+      display: flex; gap: 0.6rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem; line-height: 1.5;
+    }
+
+    .feedback-item.good {
+      background: var(--green-50);
+      color: #27500A;
+    }
+
+    .feedback-item.warn {
+      background: var(--amber-50);
+      color: #633806;
+    }
+
+    .feedback-item.bad {
+      background: #FCEBEB;
+      color: #791F1F;
+    }
+
+    .feedback-icon { flex-shrink: 0; font-size: 0.85rem; }
+
+    .btn-edit-cv {
+      width: 100%;
+      background: var(--teal-700); color: var(--white);
+      border: none; border-radius: 10px;
+      padding: 0.8rem; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      text-decoration: none; display: block; text-align: center;
+      transition: background 0.2s;
+    }
+    .btn-edit-cv:hover { background: var(--teal-900); }
+
+    .btn-dl-big {
+      width: 100%;
+      background: var(--amber-400); color: var(--teal-900);
+      border: none; border-radius: 10px;
+      padding: 0.8rem; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s;
+    }
+    .btn-dl-big:hover { background: #d4850f; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">CV<span>ku</span></a>
+  <div class="nav-actions">
+    <a href="builder.html" class="btn-back">← Edit CV</a>
+    <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- CV PREVIEW -->
+  <div>
+    <div class="cv-wrapper">
+      <div class="cv-wrapper-header">
+        <div class="dot-red"></div>
+        <div class="dot-amber"></div>
+        <div class="dot-green"></div>
+        <span style="margin-left:0.5rem;">Preview CV kamu</span>
+      </div>
+      <div id="cv-document">
+        <div class="empty-state">
+          <h3>CV kamu belum ada isinya</h3>
+          <p>Isi form CV terlebih dahulu.</p>
+          <a href="builder.html">← Buat CV Sekarang</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE PANEL -->
+  <div class="score-panel">
+
+    <div class="score-card">
+      <div class="score-card-title">ATS Score</div>
+      <div class="score-circle-wrap">
+        <div class="score-circle" id="score-circle">
+          <span class="score-number" id="score-number">–</span>
+          <span class="score-out">/100</span>
+        </div>
+        <div>
+          <div class="score-label-big" id="score-label">Belum ada data</div>
+          <div class="score-desc" id="score-desc">Isi CV dulu untuk lihat skormu</div>
+        </div>
+      </div>
+
+      <div class="score-breakdown" id="score-breakdown" style="display:none;">
+        <div class="score-row">
+          <div class="score-row-label">Kelengkapan</div>
+          <div class="score-bar-bg"><div class="score-bar-fill" id="bar-complete" style="width:0%"></div></div>
+          <div class="score-row-val" id="val-complete">0</div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-label">Action verbs</div>
+          <div class="score-bar-bg"><div class="score-bar-fill" id="bar-verbs" style="width:0%"></div></div>
+          <div class="score-row-val" id="val-verbs">0</div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-label">Angka & impact</div>
+          <div class="score-bar-bg"><div class="score-bar-fill" id="bar-numbers" style="width:0%"></div></div>
+          <div class="score-row-val" id="val-numbers">0</div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-label">Panjang konten</div>
+          <div class="score-bar-bg"><div class="score-bar-fill" id="bar-length" style="width:0%"></div></div>
+          <div class="score-row-val" id="val-length">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-card">
+      <div class="score-card-title">Feedback</div>
+      <div class="feedback-list" id="feedback-list">
+        <div class="feedback-item warn">
+          <span class="feedback-icon">💡</span>
+          <span>Isi CV dulu, lalu lihat saran perbaikan di sini.</span>
+        </div>
+      </div>
+    </div>
+
+    <a href="builder.html" class="btn-edit-cv">✏ Edit CV</a>
+    <button class="btn-dl-big" onclick="downloadPDF()">⬇ Download PDF Sekarang</button>
+
+  </div>
+</div>
+
+<script>
+  const ACTION_VERBS = [
+    'managed','led','developed','created','increased','decreased','reduced','improved',
+    'designed','built','launched','delivered','achieved','coordinated','organized',
+    'analyzed','implemented','generated','produced','trained','mentored','supervised',
+    'negotiated','presented','collaborated','researched','maintained','executed',
+    'established','streamlined','optimized','automated','handled','assisted','supported',
+    'mengelola','memimpin','mengembangkan','membuat','meningkatkan','merancang',
+    'membangun','meluncurkan','mencapai','mengkoordinasikan','menganalisis','menghasilkan'
+  ];
+
+  function hasNumbers(text) {
+    return /\d+/.test(text);
+  }
+
+  function hasActionVerb(text) {
+    const lower = text.toLowerCase();
+    return ACTION_VERBS.some(v => lower.startsWith(v) || lower.includes(' ' + v + ' '));
+  }
+
+  function computeScore(d) {
+    let scores = { complete: 0, verbs: 0, numbers: 0, length: 0 };
+    let feedback = [];
+
+    // 1. Completeness (30 pts)
+    let filled = 0;
+    if (d.fullName) filled++;
+    if (d.email) filled++;
+    if (d.phone) filled++;
+    if (d.institution) filled++;
+    if (d.skills) filled++;
+    if (d.experiences && d.experiences.some(e => e.title)) filled++;
+    scores.complete = Math.round((filled / 6) * 30);
+
+    // 2. Action verbs (25 pts)
+    const allDesc = (d.experiences || []).map(e => e.desc || '').join(' ');
+    const verbMatches = allDesc.split('\n').filter(l => l.trim() && hasActionVerb(l));
+    const totalLines = Math.max(allDesc.split('\n').filter(l => l.trim()).length, 1);
+    const verbRatio = Math.min(verbMatches.length / totalLines, 1);
+    scores.verbs = Math.round(verbRatio * 25);
+    if (scores.verbs < 15) {
+      feedback.push({ type: 'warn', text: 'Gunakan action verb di awal kalimat: Managed, Developed, Led, Created, dll.' });
+    } else {
+      feedback.push({ type: 'good', text: 'Bagus! Kamu sudah menggunakan action verbs.' });
+    }
+
+    // 3. Numbers & impact (25 pts)
+    const numLines = allDesc.split('\n').filter(l => l.trim() && hasNumbers(l));
+    const numRatio = Math.min(numLines.length / Math.max(totalLines, 1), 1);
+    scores.numbers = Math.round(numRatio * 25);
+    if (scores.numbers < 10) {
+      feedback.push({ type: 'warn', text: 'Tambahkan angka yang spesifik: persentase, jumlah, skala (contoh: 20%, 500+ users).' });
+    } else {
+      feedback.push({ type: 'good', text: 'Kamu sudah menambahkan angka dan pencapaian terukur!' });
+    }
+
+    // 4. Content length (20 pts)
+    const totalChars = [d.fullName, d.email, d.institution, d.skills, allDesc].join('').length;
+    if (totalChars > 500) scores.length = 20;
+    else if (totalChars > 200) scores.length = 12;
+    else scores.length = 5;
+
+    if (scores.complete < 25) {
+      feedback.push({ type: 'bad', text: 'Lengkapi semua bagian CV: nama, kontak, pendidikan, pengalaman, dan skill.' });
+    } else {
+      feedback.push({ type: 'good', text: 'Semua bagian utama CV sudah terisi.' });
+    }
+
+    if (!d.skills || d.skills.split(',').filter(s => s.trim()).length < 4) {
+      feedback.push({ type: 'warn', text: 'Tambahkan lebih banyak skill relevan (minimal 5–8 skill).' });
+    }
+
+    if ((d.experiences || []).length < 2) {
+      feedback.push({ type: 'warn', text: 'Coba tambahkan lebih dari 1 pengalaman (magang, organisasi, freelance, project).' });
+    }
+
+    const total = scores.complete + scores.verbs + scores.numbers + scores.length;
+    return { total, scores, feedback };
+  }
+
+  function renderCV(d) {
+    if (!d || !d.fullName) return;
+
+    const doc = document.getElementById('cv-document');
+
+    // Contact line
+    const contactParts = [d.email, d.phone, d.location, d.linkedin].filter(Boolean);
+
+    let html = `
+      <div class="cv-name">${esc(d.fullName)}</div>
+      <div class="cv-contact">${contactParts.map(p => `<span>${esc(p)}</span>`).join('')}</div>
+    `;
+
+    // Education
+    if (d.institution) {
+      html += `
+        <div class="cv-section">
+          <div class="cv-section-title">Education</div>
+          <div class="cv-entry">
+            <div class="cv-entry-header">
+              <div>
+                <div class="cv-entry-title">${esc(d.institution)}</div>
+                ${d.major ? `<div class="cv-entry-sub">${esc(d.major)}</div>` : ''}
+                ${d.gpa ? `<div class="cv-entry-sub">IPK: ${esc(d.gpa)}</div>` : ''}
+              </div>
+              ${d.eduYear ? `<div class="cv-entry-date">${esc(d.eduYear)}</div>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Experience
+    const exps = (d.experiences || []).filter(e => e.title);
+    if (exps.length > 0) {
+      html += `<div class="cv-section"><div class="cv-section-title">Experience</div>`;
+      exps.forEach(exp => {
+        const bullets = (exp.desc || '').split('\n').filter(l => l.trim());
+        html += `
+          <div class="cv-entry">
+            <div class="cv-entry-header">
+              <div>
+                <div class="cv-entry-title">${esc(exp.title)}</div>
+                ${exp.company ? `<div class="cv-entry-sub">${esc(exp.company)}</div>` : ''}
+              </div>
+              ${exp.duration ? `<div class="cv-entry-date">${esc(exp.duration)}</div>` : ''}
+            </div>
+            ${bullets.length > 0 ? `
+              <ul class="cv-bullets">
+                ${bullets.map(b => `<li>${esc(b)}</li>`).join('')}
+              </ul>
+            ` : ''}
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+
+    // Skills
+    if (d.skills) {
+      html += `
+        <div class="cv-section">
+          <div class="cv-section-title">Skills</div>
+          <div class="cv-skills-list">${esc(d.skills)}</div>
+        </div>
+      `;
+    }
+
+    doc.innerHTML = html;
+  }
+
+  function renderScore(result) {
+    const { total, scores, feedback } = result;
+
+    const numEl = document.getElementById('score-number');
+    const circle = document.getElementById('score-circle');
+    const label = document.getElementById('score-label');
+    const desc = document.getElementById('score-desc');
+
+    numEl.textContent = total;
+
+    circle.classList.remove('high', 'mid', 'low');
+    if (total >= 70) {
+      circle.classList.add('high');
+      label.textContent = 'CV Kuat 💪';
+      desc.textContent = 'CV kamu sudah cukup ATS-friendly!';
+    } else if (total >= 45) {
+      circle.classList.add('mid');
+      label.textContent = 'Perlu Diperbaiki';
+      desc.textContent = 'Ada beberapa hal yang bisa ditingkatkan.';
+    } else {
+      circle.classList.add('low');
+      label.textContent = 'CV Masih Lemah';
+      desc.textContent = 'Ikuti saran di bawah untuk meningkatkan skor.';
+    }
+
+    document.getElementById('score-breakdown').style.display = 'flex';
+
+    const bars = [
+      { bar: 'complete', val: 'complete', max: 30, score: scores.complete },
+      { bar: 'verbs', val: 'verbs', max: 25, score: scores.verbs },
+      { bar: 'numbers', val: 'numbers', max: 25, score: scores.numbers },
+      { bar: 'length', val: 'length', max: 20, score: scores.length }
+    ];
+
+    bars.forEach(({ bar, score, max }) => {
+      document.getElementById(`bar-${bar}`).style.width = Math.round((score / max) * 100) + '%';
+      document.getElementById(`val-${bar}`).textContent = score;
+    });
+
+    const fbList = document.getElementById('feedback-list');
+    fbList.innerHTML = feedback.map(f => `
+      <div class="feedback-item ${f.type}">
+        <span class="feedback-icon">${f.type === 'good' ? '✅' : f.type === 'warn' ? '💡' : '❌'}</span>
+        <span>${f.text}</span>
+      </div>
+    `).join('');
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function downloadPDF() {
+    const d = JSON.parse(localStorage.getItem('cvData') || '{}');
+    const name = d.fullName || 'CV';
+    const element = document.getElementById('cv-document');
+
+    const opt = {
+      margin: [12, 16],
+      filename: `CV_${name.replace(/\s+/g, '_')}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    const btn = document.querySelector('.btn-dl-big');
+    btn.textContent = '⏳ Generating PDF...';
+    btn.disabled = true;
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      btn.textContent = '⬇ Download PDF Sekarang';
+      btn.disabled = false;
+    });
+  }
+
+  // Init
+  function init() {
+    const raw = localStorage.getItem('cvData');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    renderCV(d);
+    const result = computeScore(d);
+    renderScore(result);
+
+    // Auto-trigger download if came from download button
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('download') === '1') {
+      setTimeout(downloadPDF, 800);
+    }
+  }
+
+  init();
+</script>
+
+</body>
+</html>

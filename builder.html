@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buat CV – CVku</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal-50: #E1F5EE;
+      --teal-100: #9FE1CB;
+      --teal-500: #1D9E75;
+      --teal-700: #0F6E56;
+      --teal-900: #04342C;
+      --gray-50: #F8F8F6;
+      --gray-100: #F1EFE8;
+      --gray-300: #D3D1C7;
+      --gray-500: #888780;
+      --gray-800: #444441;
+      --gray-900: #2C2C2A;
+      --amber-400: #EF9F27;
+      --amber-50: #FAEEDA;
+      --white: #ffffff;
+      --red-500: #E24B4A;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(248,248,246,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gray-300);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-family:'Sora',sans-serif; font-weight:700; font-size:1.25rem; color:var(--teal-700); text-decoration:none; }
+    .logo span { color:var(--amber-400); }
+    .nav-actions { display:flex; gap:0.75rem; align-items:center; }
+    .btn-nav-preview {
+      background: var(--white); color: var(--teal-700);
+      border: 1.5px solid var(--teal-100); border-radius:8px;
+      padding:0.45rem 1rem; font-size:0.875rem; font-weight:500;
+      cursor:pointer; transition:border-color 0.2s;
+      text-decoration:none; display:inline-block;
+    }
+    .btn-nav-preview:hover { border-color: var(--teal-500); }
+    .btn-nav-download {
+      background: var(--teal-700); color: var(--white);
+      border: none; border-radius:8px;
+      padding:0.5rem 1.1rem; font-size:0.875rem; font-weight:500;
+      cursor:pointer; transition:background 0.2s;
+      text-decoration:none; display:inline-block;
+    }
+    .btn-nav-download:hover { background: var(--teal-900); }
+
+    /* PROGRESS BAR */
+    .progress-bar {
+      background: var(--gray-100);
+      border-bottom: 1px solid var(--gray-300);
+      padding: 0.75rem 2rem;
+      display: flex; gap: 0.5rem; align-items: center;
+    }
+    .progress-step {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.8rem; color: var(--gray-500);
+      cursor: pointer; padding: 0.25rem 0.5rem; border-radius:6px;
+      transition: background 0.15s;
+    }
+    .progress-step:hover { background: var(--gray-300); }
+    .progress-step.active { color: var(--teal-700); font-weight: 500; }
+    .progress-step .dot {
+      width:8px; height:8px; border-radius:50%;
+      background: var(--gray-300); flex-shrink:0;
+    }
+    .progress-step.active .dot { background: var(--teal-500); }
+    .progress-step.done .dot { background: var(--teal-700); }
+    .progress-step.done { color: var(--teal-700); }
+    .progress-sep { color: var(--gray-300); font-size:0.75rem; }
+
+    /* LAYOUT */
+    .layout {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 380px;
+      gap: 2rem; padding: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+
+    /* FORM PANEL */
+    .form-panel { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .section-card {
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 1.5rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .section-header-left { display:flex; align-items:center; gap:0.75rem; }
+
+    .section-icon {
+      width:36px; height:36px; border-radius:8px;
+      background: var(--teal-50); display:flex;
+      align-items:center; justify-content:center; font-size:1rem;
+    }
+
+    .section-title {
+      font-family:'Sora',sans-serif; font-weight:600;
+      font-size:0.95rem; color:var(--gray-900);
+    }
+
+    .section-body { padding: 1.5rem; display:flex; flex-direction:column; gap:1rem; }
+
+    /* FORM FIELDS */
+    .field-group { display:flex; flex-direction:column; gap:0.4rem; }
+    .field-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+    label {
+      font-size:0.8rem; font-weight:500; color:var(--gray-800);
+      display:flex; align-items:center; gap:0.35rem;
+    }
+
+    label .req { color:var(--red-500); }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    textarea {
+      width:100%; padding:0.65rem 0.9rem;
+      border: 1px solid var(--gray-300); border-radius:8px;
+      font-family:'DM Sans',sans-serif; font-size:0.9rem;
+      color: var(--gray-900); background: var(--white);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus {
+      outline:none; border-color: var(--teal-500);
+      box-shadow: 0 0 0 3px rgba(29,158,117,0.1);
+    }
+
+    input::placeholder, textarea::placeholder { color: var(--gray-300); }
+
+    textarea { min-height: 90px; }
+
+    /* BULLET IMPROVER */
+    .bullet-wrapper { position:relative; }
+
+    .bullet-textarea { padding-right: 7rem !important; }
+
+    .improve-btn {
+      position:absolute; right:0.6rem; bottom:0.6rem;
+      background: var(--amber-400); color: var(--teal-900);
+      border:none; border-radius:6px;
+      padding:0.35rem 0.75rem; font-size:0.75rem; font-weight:600;
+      cursor:pointer; transition:background 0.2s, transform 0.1s;
+      display:flex; align-items:center; gap:0.3rem;
+      font-family:'DM Sans',sans-serif;
+    }
+    .improve-btn:hover { background:#d4850f; transform:scale(1.03); }
+    .improve-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+    .improve-spinner {
+      width:12px; height:12px;
+      border:2px solid rgba(4,52,44,0.3);
+      border-top-color: var(--teal-900);
+      border-radius:50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .improve-suggestion {
+      margin-top:0.5rem; padding:0.75rem 1rem;
+      background: var(--teal-50); border:1px solid var(--teal-100);
+      border-radius:8px; font-size:0.82rem; color: var(--teal-900);
+      display:none;
+    }
+
+    .improve-suggestion.show { display:block; }
+
+    .suggestion-actions {
+      display:flex; gap:0.5rem; margin-top:0.5rem;
+    }
+
+    .btn-use {
+      background: var(--teal-700); color:var(--white);
+      border:none; border-radius:6px;
+      padding:0.3rem 0.75rem; font-size:0.75rem; font-weight:500;
+      cursor:pointer; font-family:'DM Sans',sans-serif;
+    }
+
+    .btn-discard {
+      background:none; color:var(--gray-500);
+      border:1px solid var(--gray-300); border-radius:6px;
+      padding:0.3rem 0.75rem; font-size:0.75rem;
+      cursor:pointer; font-family:'DM Sans',sans-serif;
+    }
+
+    /* EXPERIENCE ENTRY */
+    .experience-entry {
+      border: 1px solid var(--gray-100);
+      border-radius:10px; padding:1.25rem;
+      display:flex; flex-direction:column; gap:1rem;
+      position:relative; background: var(--gray-50);
+    }
+
+    .entry-num {
+      position:absolute; top:1rem; left:1.25rem;
+      font-size:0.7rem; font-weight:600; color:var(--gray-500);
+      text-transform:uppercase; letter-spacing:0.05em;
+    }
+
+    .remove-btn {
+      position:absolute; top:0.75rem; right:0.75rem;
+      background:none; border:none; cursor:pointer;
+      color:var(--gray-500); font-size:1.1rem; line-height:1;
+      padding:0.25rem; border-radius:4px; transition:color 0.15s;
+    }
+    .remove-btn:hover { color:var(--red-500); }
+
+    .add-btn {
+      display:flex; align-items:center; justify-content:center; gap:0.5rem;
+      width:100%; padding:0.75rem;
+      background:none; border:1.5px dashed var(--gray-300);
+      border-radius:10px; color:var(--teal-700);
+      font-size:0.875rem; font-weight:500;
+      cursor:pointer; transition:border-color 0.2s, background 0.2s;
+      font-family:'DM Sans',sans-serif;
+    }
+    .add-btn:hover { border-color:var(--teal-500); background:var(--teal-50); }
+
+    /* SIDEBAR */
+    .sidebar { display:flex; flex-direction:column; gap:1rem; }
+
+    .sidebar-card {
+      background: var(--white); border:1px solid var(--gray-300);
+      border-radius:14px; padding:1.25rem; position:sticky; top:5rem;
+    }
+
+    .sidebar-title {
+      font-family:'Sora',sans-serif; font-weight:600;
+      font-size:0.9rem; color:var(--gray-900); margin-bottom:1rem;
+    }
+
+    .completeness-bar-bg {
+      background:var(--gray-100); border-radius:100px;
+      height:6px; margin-bottom:0.5rem;
+    }
+    .completeness-bar-fill {
+      height:100%; border-radius:100px;
+      background: var(--teal-500);
+      transition: width 0.4s ease;
+    }
+
+    .completeness-label {
+      font-size:0.8rem; color:var(--gray-500);
+      display:flex; justify-content:space-between;
+      margin-bottom:1rem;
+    }
+
+    .checklist { display:flex; flex-direction:column; gap:0.5rem; }
+
+    .check-item {
+      display:flex; align-items:center; gap:0.6rem;
+      font-size:0.82rem; color:var(--gray-500);
+    }
+
+    .check-item.done { color:var(--teal-700); }
+
+    .check-dot {
+      width:16px; height:16px; border-radius:50%;
+      border:1.5px solid var(--gray-300); flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.6rem;
+    }
+
+    .check-item.done .check-dot {
+      background:var(--teal-500); border-color:var(--teal-500); color:#fff;
+    }
+
+    .tip-box {
+      background:var(--amber-50); border:1px solid #FAC775;
+      border-radius:10px; padding:1rem; margin-top:1rem;
+    }
+
+    .tip-box-title {
+      font-size:0.75rem; font-weight:600; color:#633806;
+      text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;
+    }
+
+    .tip-box p { font-size:0.8rem; color:#854F0B; line-height:1.5; }
+
+    /* BOTTOM ACTION BAR */
+    .action-bar {
+      position:sticky; bottom:0;
+      background: rgba(248,248,246,0.97);
+      border-top:1px solid var(--gray-300);
+      padding:1rem 2rem;
+      display:flex; justify-content:flex-end; gap:1rem;
+      backdrop-filter:blur(10px);
+    }
+
+    .btn-preview-full {
+      background:var(--white); color:var(--teal-700);
+      border:1.5px solid var(--teal-200,#9FE1CB); border-radius:10px;
+      padding:0.75rem 1.5rem; font-size:0.95rem; font-weight:500;
+      cursor:pointer; transition:border-color 0.2s;
+      font-family:'DM Sans',sans-serif; text-decoration:none;
+      display:inline-block;
+    }
+    .btn-preview-full:hover { border-color:var(--teal-500); }
+
+    .btn-download-full {
+      background:var(--teal-700); color:var(--white);
+      border:none; border-radius:10px;
+      padding:0.75rem 1.75rem; font-size:0.95rem; font-weight:600;
+      cursor:pointer; transition:background 0.2s;
+      font-family:'DM Sans',sans-serif; text-decoration:none;
+      display:inline-block;
+    }
+    .btn-download-full:hover { background:var(--teal-900); }
+
+    /* ENTRY PADDING TOP for label */
+    .experience-entry .field-group { padding-top:0; }
+    .experience-entry:first-of-type { margin-top:0; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">CV<span>ku</span></a>
+  <div class="nav-actions">
+    <a href="preview.html" class="btn-nav-preview">👁 Preview CV</a>
+    <button class="btn-nav-download" onclick="saveAndDownload()">⬇ Download PDF</button>
+  </div>
+</nav>
+
+<div class="progress-bar">
+  <div class="progress-step done" onclick="scrollTo('personal')"><div class="dot"></div> Data Diri</div>
+  <div class="progress-sep">›</div>
+  <div class="progress-step active" onclick="scrollTo('education')"><div class="dot"></div> Pendidikan</div>
+  <div class="progress-sep">›</div>
+  <div class="progress-step" onclick="scrollTo('experience')"><div class="dot"></div> Pengalaman</div>
+  <div class="progress-sep">›</div>
+  <div class="progress-step" onclick="scrollTo('skills')"><div class="dot"></div> Skills</div>
+</div>
+
+<div class="layout">
+
+  <!-- FORM PANEL -->
+  <div class="form-panel">
+
+    <!-- PERSONAL INFO -->
+    <div class="section-card" id="personal">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon">👤</div>
+          <div class="section-title">Data Diri</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="field-group">
+          <label>Nama Lengkap <span class="req">*</span></label>
+          <input type="text" id="fullName" placeholder="contoh: Budi Santoso" oninput="updateChecklist()"/>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label>Email <span class="req">*</span></label>
+            <input type="email" id="email" placeholder="email@gmail.com" oninput="updateChecklist()"/>
+          </div>
+          <div class="field-group">
+            <label>Nomor HP <span class="req">*</span></label>
+            <input type="tel" id="phone" placeholder="0812-xxxx-xxxx" oninput="updateChecklist()"/>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Kota / Lokasi</label>
+          <input type="text" id="location" placeholder="contoh: Jakarta Selatan"/>
+        </div>
+        <div class="field-group">
+          <label>LinkedIn (opsional)</label>
+          <input type="text" id="linkedin" placeholder="linkedin.com/in/namamu"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="section-card" id="education">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon">🎓</div>
+          <div class="section-title">Pendidikan</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="field-group">
+          <label>Nama Institusi <span class="req">*</span></label>
+          <input type="text" id="institution" placeholder="contoh: Universitas Indonesia" oninput="updateChecklist()"/>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label>Jurusan / Program Studi</label>
+            <input type="text" id="major" placeholder="contoh: Manajemen"/>
+          </div>
+          <div class="field-group">
+            <label>Tahun Masuk – Lulus</label>
+            <input type="text" id="eduYear" placeholder="contoh: 2020 – 2024"/>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>IPK (opsional)</label>
+          <input type="text" id="gpa" placeholder="contoh: 3.72 / 4.00"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPERIENCE -->
+    <div class="section-card" id="experience">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon">💼</div>
+          <div class="section-title">Pengalaman</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div id="experience-list">
+          <!-- Experience entries injected here -->
+        </div>
+        <button class="add-btn" onclick="addExperience()">+ Tambah Pengalaman</button>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="section-card" id="skills">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon">⚡</div>
+          <div class="section-title">Skills</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="field-group">
+          <label>Skills (pisahkan dengan koma) <span class="req">*</span></label>
+          <textarea id="skills-input" placeholder="contoh: Microsoft Excel, Canva, Content Writing, Google Analytics, Public Speaking" oninput="updateChecklist()"></textarea>
+        </div>
+        <p style="font-size:0.78rem;color:var(--gray-500);">💡 Tips: Tulis 5–10 skill yang paling relevan dengan pekerjaan yang kamu tuju.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-title">Kelengkapan CV</div>
+      <div class="completeness-bar-bg">
+        <div class="completeness-bar-fill" id="completeness-fill" style="width:0%"></div>
+      </div>
+      <div class="completeness-label">
+        <span id="completeness-text">0% selesai</span>
+        <span id="completeness-score">0/5</span>
+      </div>
+      <div class="checklist">
+        <div class="check-item" id="chk-name">
+          <div class="check-dot">✓</div> Nama lengkap
+        </div>
+        <div class="check-item" id="chk-contact">
+          <div class="check-dot">✓</div> Email & nomor HP
+        </div>
+        <div class="check-item" id="chk-edu">
+          <div class="check-dot">✓</div> Pendidikan
+        </div>
+        <div class="check-item" id="chk-exp">
+          <div class="check-dot">✓</div> Minimal 1 pengalaman
+        </div>
+        <div class="check-item" id="chk-skills">
+          <div class="check-dot">✓</div> Skills
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-box-title">💡 Tips ATS</div>
+        <p>Gunakan kata kerja aktif di awal bullet point: <em>Managed, Developed, Increased, Created, Led</em></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+  <a href="preview.html" class="btn-preview-full" onclick="saveData()">👁 Preview & Skor CV</a>
+  <button class="btn-download-full" onclick="saveAndDownload()">⬇ Download PDF</button>
+</div>
+
+<script>
+  let expCount = 0;
+
+  function addExperience(data = {}) {
+    expCount++;
+    const id = expCount;
+    const div = document.createElement('div');
+    div.className = 'experience-entry';
+    div.id = `exp-${id}`;
+    div.innerHTML = `
+      <span class="entry-num">Pengalaman #${id}</span>
+      <button class="remove-btn" onclick="removeExperience(${id})" title="Hapus">✕</button>
+      <div style="height:1.2rem"></div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Jabatan / Job Title <span class="req">*</span></label>
+          <input type="text" id="exp-title-${id}" placeholder="contoh: Social Media Intern" value="${data.title||''}" oninput="updateChecklist()"/>
+        </div>
+        <div class="field-group">
+          <label>Nama Perusahaan</label>
+          <input type="text" id="exp-company-${id}" placeholder="contoh: PT Startup XYZ" value="${data.company||''}"/>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Durasi</label>
+        <input type="text" id="exp-duration-${id}" placeholder="contoh: Jan 2024 – Jun 2024" value="${data.duration||''}"/>
+      </div>
+      <div class="field-group">
+        <label>Deskripsi (bullet points pengalaman kamu)</label>
+        <div class="bullet-wrapper">
+          <textarea class="bullet-textarea" id="exp-desc-${id}" placeholder="Tulis pengalamanmu secara singkat. Klik 'Improve ✨' untuk buat lebih profesional.">${data.desc||''}</textarea>
+          <button class="improve-btn" id="improve-btn-${id}" onclick="improveBullet(${id})">
+            <span>Improve ✨</span>
+          </button>
+        </div>
+        <div class="improve-suggestion" id="suggestion-${id}">
+          <div id="suggestion-text-${id}"></div>
+          <div class="suggestion-actions">
+            <button class="btn-use" onclick="useSuggestion(${id})">Gunakan ini</button>
+            <button class="btn-discard" onclick="discardSuggestion(${id})">Abaikan</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('experience-list').appendChild(div);
+    updateChecklist();
+  }
+
+  function removeExperience(id) {
+    const el = document.getElementById(`exp-${id}`);
+    if (el) el.remove();
+    updateChecklist();
+  }
+
+  async function improveBullet(id) {
+    const textarea = document.getElementById(`exp-desc-${id}`);
+    const btn = document.getElementById(`improve-btn-${id}`);
+    const suggBox = document.getElementById(`suggestion-${id}`);
+    const suggText = document.getElementById(`suggestion-text-${id}`);
+    const raw = textarea.value.trim();
+
+    if (!raw) {
+      textarea.placeholder = '⚠ Tulis dulu pengalamanmu sebelum improve!';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="improve-spinner"></div> Improving...';
+    suggBox.classList.remove('show');
+
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 300,
+          system: `You are an expert CV writer for Indonesian job seekers. 
+Rewrite the user's job experience description into 1-2 professional ATS-friendly bullet points.
+Rules:
+- Start with a strong action verb (Managed, Developed, Led, Created, Increased, etc.)
+- Add measurable impact where possible (%, numbers, scale)
+- Keep it concise: 1-2 sentences max
+- Professional English
+- Do NOT add bullet symbols, just plain text
+- Return ONLY the improved text, nothing else`,
+          messages: [{ role: "user", content: raw }]
+        })
+      });
+
+      const data = await response.json();
+      const improved = data.content[0].text.trim();
+      suggText.textContent = improved;
+      suggBox.classList.add('show');
+    } catch (e) {
+      suggText.textContent = '❌ Gagal connect ke AI. Pastikan kamu online dan coba lagi.';
+      suggBox.classList.add('show');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<span>Improve ✨</span>';
+  }
+
+  function useSuggestion(id) {
+    const textarea = document.getElementById(`exp-desc-${id}`);
+    const suggText = document.getElementById(`suggestion-text-${id}`);
+    const suggBox = document.getElementById(`suggestion-${id}`);
+    textarea.value = suggText.textContent;
+    suggBox.classList.remove('show');
+  }
+
+  function discardSuggestion(id) {
+    document.getElementById(`suggestion-${id}`).classList.remove('show');
+  }
+
+  function updateChecklist() {
+    const name = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const institution = document.getElementById('institution').value.trim();
+    const skills = document.getElementById('skills-input').value.trim();
+    const hasExp = document.querySelectorAll('[id^="exp-title-"]').length > 0 &&
+      [...document.querySelectorAll('[id^="exp-title-"]')].some(el => el.value.trim() !== '');
+
+    const checks = [
+      { id: 'chk-name', done: name !== '' },
+      { id: 'chk-contact', done: email !== '' && phone !== '' },
+      { id: 'chk-edu', done: institution !== '' },
+      { id: 'chk-exp', done: hasExp },
+      { id: 'chk-skills', done: skills !== '' }
+    ];
+
+    let doneCount = 0;
+    checks.forEach(({ id, done }) => {
+      const el = document.getElementById(id);
+      if (done) { el.classList.add('done'); doneCount++; }
+      else { el.classList.remove('done'); }
+    });
+
+    const pct = Math.round((doneCount / checks.length) * 100);
+    document.getElementById('completeness-fill').style.width = pct + '%';
+    document.getElementById('completeness-text').textContent = pct + '% selesai';
+    document.getElementById('completeness-score').textContent = `${doneCount}/${checks.length}`;
+  }
+
+  function collectData() {
+    const experiences = [];
+    document.querySelectorAll('[id^="exp-title-"]').forEach(el => {
+      const id = el.id.replace('exp-title-', '');
+      experiences.push({
+        title: el.value,
+        company: document.getElementById(`exp-company-${id}`)?.value || '',
+        duration: document.getElementById(`exp-duration-${id}`)?.value || '',
+        desc: document.getElementById(`exp-desc-${id}`)?.value || ''
+      });
+    });
+
+    return {
+      fullName: document.getElementById('fullName').value,
+      email: document.getElementById('email').value,
+      phone: document.getElementById('phone').value,
+      location: document.getElementById('location').value,
+      linkedin: document.getElementById('linkedin').value,
+      institution: document.getElementById('institution').value,
+      major: document.getElementById('major').value,
+      eduYear: document.getElementById('eduYear').value,
+      gpa: document.getElementById('gpa').value,
+      skills: document.getElementById('skills-input').value,
+      experiences
+    };
+  }
+
+  function saveData() {
+    localStorage.setItem('cvData', JSON.stringify(collectData()));
+  }
+
+  function saveAndDownload() {
+    saveData();
+    window.location.href = 'preview.html?download=1';
+  }
+
+  // Load existing data
+  function loadData() {
+    const raw = localStorage.getItem('cvData');
+    if (!raw) { addExperience(); return; }
+    const d = JSON.parse(raw);
+    document.getElementById('fullName').value = d.fullName || '';
+    document.getElementById('email').value = d.email || '';
+    document.getElementById('phone').value = d.phone || '';
+    document.getElementById('location').value = d.location || '';
+    document.getElementById('linkedin').value = d.linkedin || '';
+    document.getElementById('institution').value = d.institution || '';
+    document.getElementById('major').value = d.major || '';
+    document.getElementById('eduYear').value = d.eduYear || '';
+    document.getElementById('gpa').value = d.gpa || '';
+    document.getElementById('skills-input').value = d.skills || '';
+    if (d.experiences && d.experiences.length > 0) {
+      d.experiences.forEach(exp => addExperience(exp));
+    } else {
+      addExperience();
+    }
+    updateChecklist();
+  }
+
+  loadData();
+</script>
+
+</body>
+</html>

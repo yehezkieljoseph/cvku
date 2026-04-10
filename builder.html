@@ -567,7 +567,75 @@
     updateChecklist();
   }
 
-  async function improveBullet(id) {
+  // ── Template-based bullet improver (no API key needed) ──
+  const KEYWORD_MAP = [
+    // Social media & content
+    { match: ['instagram','tiktok','twitter','facebook','youtube','sosmed','social media','konten','content','posting','post'],
+      verb: 'Managed', action: 'social media accounts', impact: 'increasing follower engagement through consistent and data-driven content strategy' },
+    // Design
+    { match: ['desain','design','canva','figma','adobe','ilustrasi','illustration','grafis','graphic','banner','poster','ui','ux'],
+      verb: 'Designed', action: 'visual assets and marketing materials', impact: 'supporting brand consistency across digital and print channels' },
+    // Sales & marketing
+    { match: ['jualan','jual','sales','marketing','promosi','promote','campaign','iklan','ads','revenue','omzet'],
+      verb: 'Executed', action: 'sales and marketing campaigns', impact: 'driving revenue growth and expanding customer reach' },
+    // Data & analysis
+    { match: ['data','analisis','analysis','excel','spreadsheet','laporan','report','riset','research','survei','survey'],
+      verb: 'Analyzed', action: 'data and produced actionable reports', impact: 'enabling informed decision-making across the team' },
+    // Events & organizing
+    { match: ['event','acara','panitia','organize','organisasi','koordinasi','koordinir','lomba','webinar','seminar'],
+      verb: 'Coordinated', action: 'events and cross-functional team activities', impact: 'ensuring smooth execution and positive participant experience' },
+    // Teaching & training
+    { match: ['mengajar','ajar','tutor','training','pelatihan','mentor','bimbingan','bimbing','les'],
+      verb: 'Delivered', action: 'training and mentoring sessions', impact: 'improving participant knowledge and skill outcomes' },
+    // Customer service
+    { match: ['customer','pelanggan','client','klien','service','layanan','complaint','keluhan','cs'],
+      verb: 'Managed', action: 'customer relationships and service inquiries', impact: 'maintaining high satisfaction rates and resolving issues efficiently' },
+    // Writing & communication
+    { match: ['nulis','menulis','writing','artikel','artikel','copywriting','copy','press release','komunikasi'],
+      verb: 'Produced', action: 'written content and communications', impact: 'enhancing brand messaging and audience engagement' },
+    // Finance & accounting
+    { match: ['keuangan','finance','akuntansi','accounting','pembukuan','budget','anggaran','invoice','laporan keuangan'],
+      verb: 'Managed', action: 'financial records and budget tracking', impact: 'ensuring accuracy and compliance with reporting requirements' },
+    // Tech & coding
+    { match: ['coding','code','programming','website','web','aplikasi','app','software','backend','frontend','develop'],
+      verb: 'Developed', action: 'software features and technical solutions', impact: 'improving system performance and user experience' },
+    // Operations & admin
+    { match: ['admin','administrasi','operasional','operation','procurement','logistik','inventory','stok','gudang'],
+      verb: 'Streamlined', action: 'administrative and operational processes', impact: 'reducing manual effort and improving overall efficiency' },
+    // Research & academic
+    { match: ['penelitian','research','skripsi','thesis','jurnal','journal','publikasi','lab','laboratorium'],
+      verb: 'Conducted', action: 'research and analysis', impact: 'contributing to academic findings and evidence-based recommendations' },
+  ];
+
+  const FALLBACK_VERBS = ['Managed','Executed','Supported','Contributed to','Coordinated','Delivered','Assisted in'];
+
+  function templateImprove(raw) {
+    const lower = raw.toLowerCase();
+
+    // Find best matching template
+    let best = null;
+    let bestScore = 0;
+    for (const rule of KEYWORD_MAP) {
+      const score = rule.match.filter(kw => lower.includes(kw)).length;
+      if (score > bestScore) { bestScore = score; best = rule; }
+    }
+
+    // Extract any number already in the text (e.g. "100 followers", "3 bulan")
+    const numMatch = raw.match(/\d+[\.,]?\d*\s*(%|persen|ribu|juta|k|rb|followers?|users?|orang|produk|item|project|bulan|minggu|hari)?/i);
+    const numHint = numMatch ? ` with measurable results (${numMatch[0].trim()})` : '';
+
+    if (best && bestScore > 0) {
+      return `${best.verb} ${best.action}${numHint}, ${best.impact}.`;
+    }
+
+    // Generic fallback — pick a verb and wrap the original cleaned up
+    const verb = FALLBACK_VERBS[Math.floor(Math.random() * FALLBACK_VERBS.length)];
+    // Clean the raw text: capitalize first letter, ensure ends with period
+    const cleaned = raw.charAt(0).toUpperCase() + raw.slice(1).replace(/[.!?]*$/, '');
+    return `${verb} ${cleaned.toLowerCase()}${numHint}, contributing to team and organizational objectives.`;
+  }
+
+  function improveBullet(id) {
     const textarea = document.getElementById(`exp-desc-${id}`);
     const btn = document.getElementById(`improve-btn-${id}`);
     const suggBox = document.getElementById(`suggestion-${id}`);
@@ -575,45 +643,23 @@
     const raw = textarea.value.trim();
 
     if (!raw) {
-      textarea.placeholder = '⚠ Tulis dulu pengalamanmu sebelum improve!';
+      textarea.style.borderColor = 'var(--red-500)';
+      setTimeout(() => textarea.style.borderColor = '', 1500);
       return;
     }
 
     btn.disabled = true;
-    btn.innerHTML = '<div class="improve-spinner"></div> Improving...';
+    btn.innerHTML = '<div class="improve-spinner"></div>';
     suggBox.classList.remove('show');
 
-    try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 300,
-          system: `You are an expert CV writer for Indonesian job seekers. 
-Rewrite the user's job experience description into 1-2 professional ATS-friendly bullet points.
-Rules:
-- Start with a strong action verb (Managed, Developed, Led, Created, Increased, etc.)
-- Add measurable impact where possible (%, numbers, scale)
-- Keep it concise: 1-2 sentences max
-- Professional English
-- Do NOT add bullet symbols, just plain text
-- Return ONLY the improved text, nothing else`,
-          messages: [{ role: "user", content: raw }]
-        })
-      });
-
-      const data = await response.json();
-      const improved = data.content[0].text.trim();
+    // Small delay for UX feel
+    setTimeout(() => {
+      const improved = templateImprove(raw);
       suggText.textContent = improved;
       suggBox.classList.add('show');
-    } catch (e) {
-      suggText.textContent = '❌ Gagal connect ke AI. Pastikan kamu online dan coba lagi.';
-      suggBox.classList.add('show');
-    }
-
-    btn.disabled = false;
-    btn.innerHTML = '<span>Improve ✨</span>';
+      btn.disabled = false;
+      btn.innerHTML = '<span>Improve ✨</span>';
+    }, 600);
   }
 
   function useSuggestion(id) {
